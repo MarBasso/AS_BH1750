@@ -31,11 +31,11 @@
 
 /**
  * Constructor.
- * Erlaubt die I2C-Adresse des Sensors zu ändern. 
- * Standardadresse: 0x23, Alternativadresse: 0x5C. 
- * Es sind entsprechende Konstanten definiert: BH1750_DEFAULT_I2CADDR  und BH1750_SECOND_I2CADDR.
- * Bei Nichtangabe wird die Standardadresse verwendet. 
- * Um die Alternativadresse zu nutzen, muss der Sensorpin 'ADR' des Chips auf VCC gelegt werden.
+ * Allows to change the I2C address of the sensor.
+ * Default address: 0x23, alternative address: 0x5C.
+ * Constants are defined as: BH1750_DEFAULT_I2CADDR and BH1750_SECOND_I2CADDR.
+ * When not specified, the default address is used.
+ * To use the alternative address, the sensor pin 'ADR' of the chip must be set to VCC.
  */
 AS_BH1750::AS_BH1750(uint8_t address) {
   _address = address;
@@ -43,27 +43,27 @@ AS_BH1750::AS_BH1750(uint8_t address) {
 }
 
 /**
- * Führt die anfängliche Initialisierung des Sensors.
- * Mögliche Parameter: 
- *  - Modus für die Sensorauflösung:
- *    -- RESOLUTION_LOW:         Physische Sensormodus mit 4 lx Auflösung. Messzeit ca. 16ms. Bereich 0-54612.
- *    -- RESOLUTION_NORMAL:      Physische Sensormodus mit 1 lx Auflösung. Messzeit ca. 120ms. Bereich 0-54612.
- *    -- RESOLUTION_HIGH:        Physische Sensormodus mit 0,5 lx Auflösung. Messzeit ca. 120ms. Bereich 0-54612.
- *                               (Die Messbereiche können durch Änderung des MTreg verschoben werden.)
- *    -- RESOLUTION_AUTO_HIGH:   Die Werte im MTreg werden je nach Helligkeit automatisch so angepasst, 
- *                               dass eine maximalmögliche Auflösung und Messbereich erziehlt werden.
- *                               Die messbaren Werte fangen von 0,11 lx und gehen bis über 100000 lx.
- *                               (ich weis nicht, wie genau die Werte in Grenzbereichen sind, 
- *                               besonders bei hohen Werte habe ich da meine Zweifel.
- *                               Die Werte scheinen jedoch weitgehend linear mit der steigenden Helligkeit zu wachsen.)
- *                               Auflösung im Unteren Bereich ca. 0,13 lx, im mittleren 0,5 lx, im oberen etwa 1-2 lx.
- *                               Die Messzeiten verlängern sich durch mehrfache Messungen und 
- *                               die Änderungen von Measurement Time (MTreg) bis max. ca. 500 ms.
- *   
- * - AutoPowerDown: true = Der Sensor wird nach der Messung in den Stromsparmodus versetzt. 
- *   Das spätere Aufwecken wird ggf. automatisch vorgenommen, braucht jedoch geringfügig mehr Zeit.
- *
- * Defaultwerte: RESOLUTION_AUTO_HIGH, true
+* Performs the first initialization of the sensor.
+ * Possible parameters:
+ * - Sensor resolution mode:
+ * - RESOLUTION_LOW: Physical sensor mode with 4 lx resolution. Measurement time approx. 16ms. Range 0-54612.
+ * - RESOLUTION_NORMAL: Physical sensor mode with 1 lx resolution. Measurement time approx. 120ms. Range 0-54612.
+ * - RESOLUTION_HIGH: Physical sensor mode with 0.5 lx resolution. Measurement time approx. 120ms. Range 0-54612.
+ * (The measuring ranges can be moved by changing the MTreg.)
+ * - RESOLUTION_AUTO_HIGH: The values in the MTreg are automatically adjusted according to the brightness,
+ * that a maximum resolution and measuring range are achieved.
+ * The measurable values range from 0.11 lx to 100,000 lx.
+ * (I do not know how accurate the values are in border areas,
+ * especially with high values I have my doubts.
+ * However, the values seem to grow largely linearly with the increasing brightness.)
+ * Resolution in the lower range approximately 0.13 lx, in the middle 0.5 lx, in the upper approximately 1-2 lx.
+ * The measurement times are extended by multiple measurements and measurements
+ * the changes from Measurement Time (MTreg) to max. approx. 500 ms.
+ *
+ * - AutoPowerDown: true = The sensor is placed in the power saving mode after the measurement.
+ * The subsequent wake-up is performed automatically, but takes slightly more time.
+ *
+ * Default values: RESOLUTION_AUTO_HIGH, true
  *
  */
 bool AS_BH1750::begin(sensors_resolution_t mode, bool autoPowerDown) {
@@ -76,9 +76,9 @@ bool AS_BH1750::begin(sensors_resolution_t mode, bool autoPowerDown) {
   
   Wire.begin();
 
-  defineMTReg(BH1750_MTREG_DEFAULT); // eigentlich normalerweise unnötig, da standard
+  defineMTReg(BH1750_MTREG_DEFAULT); // actually normally unnecessary since standard
 
-  // Hardware-Modus zum gewünschten VitrualModus ermitteltn
+  // Determine the hardware mode for the desired Virtual Mode
   switch (_virtualMode) {
   case RESOLUTION_LOW:
     _hardwareMode = autoPowerDown?BH1750_ONE_TIME_LOW_RES_MODE:BH1750_CONTINUOUS_LOW_RES_MODE;
@@ -93,7 +93,7 @@ bool AS_BH1750::begin(sensors_resolution_t mode, bool autoPowerDown) {
     _hardwareMode = BH1750_CONTINUOUS_LOW_RES_MODE;
     break;
   default:
-    // darf eigentlich nicht passieren...
+    // must not actually happen...
     _hardwareMode = 255;
     break;
   }
@@ -107,7 +107,7 @@ bool AS_BH1750::begin(sensors_resolution_t mode, bool autoPowerDown) {
     return false;
   }
 
-  // Versuchen, den gewählten Hardwaremodus zu aktivieren
+  // Try to activate the selected hardware mode
   if(selectResolutionMode(_hardwareMode)){
 #if BH1750_DEBUG == 1
     Serial.print("hardware mode defined successfully");
@@ -116,7 +116,7 @@ bool AS_BH1750::begin(sensors_resolution_t mode, bool autoPowerDown) {
     return true;
   }
 
-  // Initialisierung fehlgeschlagen
+  // Initialization failed
 #if BH1750_DEBUG == 1
   Serial.print("failure to aktivate hardware mode ");
   Serial.println(_hardwareMode, DEC);
@@ -126,34 +126,34 @@ bool AS_BH1750::begin(sensors_resolution_t mode, bool autoPowerDown) {
 }
 
 /**
- * Erlaub eine Prüfung, ob ein (ansprechbarer) BH1750-Sensor vorhanden ist.
+ * Allow a check to see if a (responsive) BH1750 sensor is present.
  */
 bool AS_BH1750::isPresent() {
-  // Check I2C Adresse
+  // Check I2C Address
   Wire.beginTransmission(_address);
   if(Wire.endTransmission()!=0) {
     return false; 
   }
 
-  // Check device: ist es ein BH1750
+  // Check device: is it a BH1750
   if(!isInitialized()) {
-    // zuvor inaktiv, daher zu Testen schnelltes einmal-Mode aktivieren
+    // previously inactive, therefore, to test fast one-time mode
     //write8(BH1750_POWER_ON);
     selectResolutionMode(BH1750_ONE_TIME_LOW_RES_MODE);
     _hardwareMode=255;
   } 
   else {
-    // falls einmal-modus aktiv war, muss der Sensor geweckt werden
+    // if once-mode was active, the sensor must be awakened
     powerOn(); 
   }
 
-  // Prüfen, ob Werte auch wirklich geliefert werden (letztes Modus, ggf. wird auto-PowerDown ausgeführt)
+  // Check whether values are actually delivered (last mode, auto-PowerDown will be executed)
   return (readLightLevel()>=0);
 }
 
 /**
- * Weckt ein im PowerDown-Modus befindlichen Sensor auf (schadet auch dem 'wachen' Sensor nicht).
- * Funktionier nur, wenn der Sensor bereits initialisiert wurde.
+ * Awakens a sensor in power down mode (does not damage the 'wake up' sensor).
+ * Works only if the sensor has already been initialized.
  */
 void AS_BH1750::powerOn() {
   if(!isInitialized()) {
@@ -166,13 +166,13 @@ void AS_BH1750::powerOn() {
   _valueReaded=false;
   //write8(BH1750_POWER_ON); //
   //fDelayPtr(10); // Nötig?
-  // Scheinbar reicht das Setzen von HardwareMode auch ohne PowerON-Befehl aus
-  selectResolutionMode(_hardwareMode); // letzten Modus wieder aktivieren
+  // Apparently the setting of HardwareMode sufficient also without PowerON command
+  selectResolutionMode(_hardwareMode); // activate the last mode
 }
 
 /**
- * Schickt den Sensor in Stromsparmodus.
- * Funktionier nur, wenn der Sensor bereits initialisiert wurde.
+ * Sends the sensor to power saving mode.
+ * Only works if the sensor has already been initialized.
  */
 void AS_BH1750::powerDown() {
   if(!isInitialized()) {
@@ -186,14 +186,13 @@ void AS_BH1750::powerDown() {
 }
 
 /**
- * Sendet zum Sensor ein Befehl zum Auswahl von HardwareMode.
+ * Sends to the sensor a command to select HardwareMode.
  *
- * Parameter:
- * - mode: s.o. 
- * - DelayFuncPtr: delay(n) Möglichkeit, eigene Delay-Funktion mitzugeben (z.B. um sleep-Modus zu verwenden).
- * 
- * Defaultwerte: delay()
- *
+ * Parameters:
+ * - mode: s.o.
+ * - DelayFuncPtr: delay(n) Ability to add your own delay function (e.g., to use sleep mode).
+ *
+ * Default values: delay()
  */
 bool AS_BH1750::selectResolutionMode(uint8_t mode, DelayFuncPtr fDelayPtr) {
 #if BH1750_DEBUG == 1
@@ -210,7 +209,7 @@ bool AS_BH1750::selectResolutionMode(uint8_t mode, DelayFuncPtr fDelayPtr) {
   _hardwareMode=mode;
   _valueReaded=false;
 
-  // Prüfen, ob ein valides Modus vorliegt und im positiven Fall das gewünschte Modus aktivieren
+  // Check whether a valid mode is present and, in the positive case, activate the desired mode
   switch (mode) {
   case BH1750_CONTINUOUS_HIGH_RES_MODE:
   case BH1750_CONTINUOUS_HIGH_RES_MODE_2:
@@ -218,10 +217,10 @@ bool AS_BH1750::selectResolutionMode(uint8_t mode, DelayFuncPtr fDelayPtr) {
   case BH1750_ONE_TIME_HIGH_RES_MODE:
   case BH1750_ONE_TIME_HIGH_RES_MODE_2:
   case BH1750_ONE_TIME_LOW_RES_MODE:
-    // Modus aktivieren
+    // Mode
     if(write8(mode)) {
-    // Kurze pause nötig, sonst wird das Modus nicht sicher Aktiviert
-    // (z.B. liefert Sensor im AutoHigh Modus abwechselnd übersteuerte Werte, etwa so: 54612.5, 68123.4, 54612.5, 69345.3,..)
+    // Short pause necessary, otherwise the mode is not activated safely
+    // (e.g., in the AutoHigh mode, sensor provides alternately over-steered values, such as: 54612.5, 68123.4, 54612.5, 69345.3, ..)
     fDelayPtr(5);
       return true;
     }
@@ -238,10 +237,10 @@ bool AS_BH1750::selectResolutionMode(uint8_t mode, DelayFuncPtr fDelayPtr) {
 }
 
 /**
- * Liefert aktuell gemessenen Wert für Helligkeit in lux (lx).
- * Falls sich der Sensorf in Stromsparmodus befindet, wird er automatisch geweckt.
+ * Returns current measured value for brightness in lux (lx).
+ * If the sensor is in power saving mode, it is automatically awakened.
  *
- * Wurde der Sensor (noch) nicht initialisiert (begin), wird der Wert -1 geliefert.
+ * If the sensor has not (yet) been initialized (begin), the value -1 is supplied.
  */
 float AS_BH1750::readLightLevel(DelayFuncPtr fDelayPtr) {
 #if BH1750_DEBUG == 1
@@ -261,19 +260,19 @@ float AS_BH1750::readLightLevel(DelayFuncPtr fDelayPtr) {
     powerOn();
   }
 
-  // Das Automatische Modus benötigt eine Sonderbehandlung.
-  // Zuerst wird die Helligkeit im LowRes-Modus gelesen, 
-  // je nach Bereich (dunkel, normal, sehr hell) werden die Werte von MTreg gesetzt und
-  // danach wird die eigentliche Messung vorgenommen.
+  // Automatic mode requires special treatment.
+  // First, the brightness is read in the LowRes mode,
+  // depending on the range (dark, normal, very bright), the values of MTreg are set and
+  // the actual measurement is then carried out.
   /*
-     Die feste Grenzwerte verursachen möglicherweise einen 'Sprung' in der Messkurve. 
-   In diesem Fall wäre eine laufende Anpassung von MTreg in Grenzbereichen vermutlich besser.
-   Für meine Zwecke ist das jedoch ohne Bedeutung.
+     The fixed limits may cause a 'jump' in the measurement curve.
+   In this case, a continuous adaptation of MTreg in border areas would probably be better.
+   For my purposes, however, this is of no importance.
    */
   if(_virtualMode==RESOLUTION_AUTO_HIGH) {
     defineMTReg(BH1750_MTREG_DEFAULT);
     selectResolutionMode(BH1750_CONTINUOUS_LOW_RES_MODE, fDelayPtr);
-    fDelayPtr(16); // Lesezeit in LowResMode
+    fDelayPtr(16); // Reading time in LowResMode
     uint16_t level = readRawLevel();
 #if BH1750_DEBUG == 1
     Serial.print("AutoHighMode: check level read: ");
@@ -283,47 +282,47 @@ float AS_BH1750::readLightLevel(DelayFuncPtr fDelayPtr) {
 #if BH1750_DEBUG == 1
     Serial.println("level 0: dark");
 #endif    
-      // Dunkel, Empfindlichkeit auf Maximum. 
-      // Der Wert ist zufällig. Ab ca. 16000 wäre diese Vorgehnsweise möglich.
-      // Ich brauche diese Genauigkeit aber nur in den ganz dunklen Bereichen (zu erkennen, wann wirklich 'dunkel' ist).
+      // Dark, sensitivity to maximum.
+      // The value is random. From about 16000 this approach would be possible.
+      // I need this accuracy but only in the dark areas (to see when really 'dark').
       defineMTReg(BH1750_MTREG_MAX);
       selectResolutionMode(_autoPowerDown?BH1750_ONE_TIME_HIGH_RES_MODE_2:BH1750_CONTINUOUS_HIGH_RES_MODE_2, fDelayPtr);
-      fDelayPtr(120*3.68); // TODO: Wert prüfen
+      fDelayPtr(120*3.68); // TODO: Check the value
       //fDelayPtr(122);
     }
     else if(level<32767) {
 #if BH1750_DEBUG == 1
     Serial.println("level 1: normal");
 #endif    
-      // Bis hierher reicht die 0,5 lx Modus. Normale Empfindlichkeit.
+      // Up to this point, the 0.5 lx mode is enough. Normal sensitivity.
       defineMTReg(BH1750_MTREG_DEFAULT);
       selectResolutionMode(_autoPowerDown?BH1750_ONE_TIME_HIGH_RES_MODE_2:BH1750_CONTINUOUS_HIGH_RES_MODE_2, fDelayPtr);
-      fDelayPtr(120); // TODO: Wert prüfen
+      fDelayPtr(120); // TODO: Check the value
     } 
     else if(level<60000) {
 #if BH1750_DEBUG == 1
     Serial.println("level 2: bright");
 #endif    
-      // hoher Bereich, 1 lx Modus, normale Empfindlichkeit. Der Wert von 60000 ist mehr oder weniger zufällig, es mus einfach ein hoher Wert, nah an der Grenze sein.
+      // high range, 1 lx mode, normal sensitivity. The value of 60000 is more or less random, it simply needs to be a high value, close to the limit.
       defineMTReg(BH1750_MTREG_DEFAULT);
       selectResolutionMode(_autoPowerDown?BH1750_ONE_TIME_HIGH_RES_MODE:BH1750_CONTINUOUS_HIGH_RES_MODE, fDelayPtr);
-      fDelayPtr(120); // TODO: Wert prüfen
+      fDelayPtr(120); // TODO: Check the value
     }
     else {
 #if BH1750_DEBUG == 1
     Serial.println("level 3: very bright");
 #endif    
-      // sehr hoher Bereich, Empfindlichkeit verringern
-      defineMTReg(32); // Min+1, bei dem Minimum aus Doku spielt der Sensor (zumindest meiner) verrückt: Die Werte sind ca. 1/10 von den Erwarteten.
+      // very high range, reduce sensitivity
+      defineMTReg(32); // Min+1, at the minimum from Doku the sensor (at least my) is crazy: The values are about 1/10 of the expected.
       selectResolutionMode(_autoPowerDown?BH1750_ONE_TIME_HIGH_RES_MODE:BH1750_CONTINUOUS_HIGH_RES_MODE, fDelayPtr);
-      fDelayPtr(120); // TODO: Wert prüfen
+      fDelayPtr(120); // TODO: Check the value
     }
   } 
 
-  // Hardware Wert lesen und in Lux umrechnen.
+  // Hardware read value and convert to Lux.
   uint16_t raw = readRawLevel();
   if(raw==65535) {
-    // Wert verdächtig hoch. Sensor prüfen. 
+    // Value suspiciously high. Check sensor.
     // Check I2C Adresse
     Wire.beginTransmission(_address);
     if(Wire.endTransmission()!=0) {
@@ -334,8 +333,8 @@ float AS_BH1750::readLightLevel(DelayFuncPtr fDelayPtr) {
 }
 
 /**
- * Roh-Wert der Helligkeit auslesen. 
- * Wertebereich 0-65535.
+ * Read the raw value of the brightness.
+ * Range of values 0-65535.
  */
 uint16_t AS_BH1750::readRawLevel(void) {
   uint16_t level;
@@ -368,10 +367,10 @@ uint16_t AS_BH1750::readRawLevel(void) {
 }
 
 /**
- * Rechnet Roh-Werte in Lux um.
+ * Convert raw values to lux.
  */
 float AS_BH1750::convertRawValue(uint16_t raw) {
-  // Basisumrechnung
+  // Conversion
   float flevel = raw/1.2;
 
 #if BH1750_DEBUG == 1
@@ -379,8 +378,8 @@ float AS_BH1750::convertRawValue(uint16_t raw) {
   Serial.println(flevel);
 #endif
 
-  // MTreg-Einfluss berechnen
-  if(_MTreg!=BH1750_MTREG_DEFAULT) { // bei 69 ist der Faktor = 1
+  // Calculate the MTreg influence
+  if(_MTreg!=BH1750_MTREG_DEFAULT) { // at 69, the factor is 1
     flevel = flevel * _MTregFactor;
 #if BH1750_DEBUG == 1
     Serial.print("convert light level (2): ");
@@ -388,7 +387,7 @@ float AS_BH1750::convertRawValue(uint16_t raw) {
 #endif
   }
 
-  // je nach Modus ist eine weitere Umrechnung nötig
+  // depending on the mode a further conversion is necessary
   switch (_hardwareMode) {
   case BH1750_CONTINUOUS_HIGH_RES_MODE_2:
   case BH1750_ONE_TIME_HIGH_RES_MODE_2:
@@ -412,11 +411,11 @@ float AS_BH1750::convertRawValue(uint16_t raw) {
 }
 
 /**
- * MTreg setzen. Definiert Empfindlichkeit des Sensors.
- * Min.Wert (BH1750_MTREG_MIN) =  31 (Empfindlichkeit: default*0,45)
- * Max.Wert (BH1750_MTREG_MAX) = 254 (Empfindlichkeit: default*3,68)
- * Default (BH1750_MTREG_DEFAULT) = 69.
- * Mit der Empfindlichkeit verändert sich die Lesezeit (höhere Empfindlichkeit bedeutet längere Zeitspanne).
+ * MTreg. Defines sensor sensitivity.
+ * Min.value (BH1750_MTREG_MIN) = 31 (Sensitivity: default * 0.45)
+ * Max.value (BH1750_MTREG_MAX) = 254 (Sensitivity: default * 3.68)
+ * Default (BH1750_MTREG_DEFAULT) = 69.
+ * The sensitivity changes the reading time (higher sensitivity means longer period of time).
  */
 void AS_BH1750::defineMTReg(uint8_t val) {
   if(val<BH1750_MTREG_MIN) {
@@ -430,7 +429,7 @@ void AS_BH1750::defineMTReg(uint8_t val) {
     _MTregFactor = (float)BH1750_MTREG_DEFAULT / _MTreg;
 
     // Change Measurement time
-    // Übertragung in zwei Schritten: 3 Bit und 5 Bit, jeweils mit einem Prefix.
+    // Transmission in two steps: 3 bits and 5 bits, each with a prefix.
     //   High bit: 01000_MT[7,6,5]
     //   Low bit:  011_MT[4,3,2,1,0]
     uint8_t hiByte = val>>5;
@@ -441,7 +440,7 @@ void AS_BH1750::defineMTReg(uint8_t val) {
 #endif
     write8(hiByte);
     //fDelayPtr(10);
-    // Pause nötig?
+    // Pause necessary?
     uint8_t loByte = val&0b00011111;
     loByte |= 0b01100000;
 #if BH1750_DEBUG == 1
@@ -454,14 +453,14 @@ void AS_BH1750::defineMTReg(uint8_t val) {
 }
 
 /**
- * Gibt an, ob der Sensor initialisiert ist.
+ * Indicates whether the sensor is initialized.
  */
 bool AS_BH1750::isInitialized() {
   return _hardwareMode!=255; 
 }
 
 /**
- * Schreibt ein Byte auf I2C Bus (auf die Adresse des Sensors).
+ * Write one byte to I2C bus (to the address of the sensor).
  */
 bool AS_BH1750::write8(uint8_t d) {
   Wire.beginTransmission(_address);
