@@ -1,37 +1,22 @@
-AS_BH1750
-=========
-
 a (Arduino) library for the BH1750FVI Digital Light Sensor.
 
-(http://s6z.de/joomla3/index.php/arduino/sensoren/15-umgebungslichtsensor-bh1750)
+( http://s6z.de/joomla3/index.php/arduino/sensoren/15-umgenungslichtsensor-bh1750 )
 
+features:
 
-Features:
+supports both possible I2C addresses of the sensor: standard address: 0x23, alternative address: 0x5C. There are corresponding constants defined: BH1750_DEFAULT_I2CADDR and BH1750_SECOND_I2CADDR.
 
- - unterstützt beide möglichen I2C-Adressen des Sensors:
-   Standardadresse: 0x23, Alternativadresse: 0x5C. 
-   Es sind entsprechende Konstanten definiert: BH1750_DEFAULT_I2CADDR und BH1750_SECOND_I2CADDR.
- 
- - alle Hardware-Auflösungsmodi:
-   * RESOLUTION_LOW:         Physische Sensormodus mit 4 lx Auflösung. Messzeit ca. 16ms. Bereich 0-54612. 
-   * RESOLUTION_NORMAL:      Physische Sensormodus mit 1 lx Auflösung. Messzeit ca. 120ms. Bereich 0-54612.
-   * RESOLUTION_HIGH:        Physische Sensormodus mit 0,5 lx Auflösung. Messzeit ca. 120ms. Bereich 0-54612.
+all hardware resolution modes:
 
- - Virtueller Modus:
-   * RESOLUTION_AUTO_HIGH:   Die Werte im MTreg ('Measurement Time'-Register) werden je nach Helligkeit 
-                              automatisch so angepasst, dass eine maximalmögliche Auflösung 
-                              und Messbereich erziehlt werden.
-                              Die messbaren Werte fangen von 0,11 lx und gehen bis über 100000 lx.
-                              (ich weis nicht, wie genau die Werte in Grenzbereichen sind, 
-                              besonders bei hohen Werte habe ich da meine Zweifel. 
-                              Die Werte scheinen jedoch weitgehend linear mit der steigenden Helligkeit zu wachsen.)
-                              Auflösung im Unteren Bereich ca. 0,13 lx, im mittleren 0,5 lx, im oberen etwa 1-2 lx.
-                              Die Messzeiten verlängern sich durch mehrfache Messungen und 
-                              die Änderungen von Measurement Time (MTreg) bis max. ca. 500 ms.
- 
- - Methode zur Änderung von 'Measurement Time'-Registers. Damit kann die Empfindlichkeit beeinflusst werden.
- 
- - auto power down: Der Sensor wird nach der Messung in den Stromsparmodus versetzt. 
-   Das spätere Aufwecken wird ggf. automatisch vorgenommen, braucht jedoch geringfügig mehr Zeit.
+RESOLUTION_LOW: Physical sensor mode with 4 lx resolution. Measurement time approx. 16ms. Range 0-54612.
+RESOLUTION_NORMAL: Physical sensor mode with 1 lx resolution. Measurement time approx. 120ms. Range 0-54612.
+RESOLUTION_HIGH: Physical sensor mode with 0.5 lx resolution. Measurement time approx. 120ms. Range 0-54612.
 
- Defaultwerte: Modus = RESOLUTION_AUTO_HIGH, AutoPowerDown = true
+Virtual Mode:
+
+RESOLUTION_AUTO_HIGH: Depending on the brightness, the values ​​in the MTreg ('Measurement Time' register) are automatically adjusted in such a way that a maximum resolution and measuring range are achieved. The measurable values ​​start from 0.11 lx and go to over 100000 lx. (I do not know how exactly the values ​​are in the boundary regions, especially in the case of high values, I have my doubts, but the values ​​seem to grow largely linearly with the increasing brightness.) Resolution in the lower range approx 0.5 lx, in the upper about 1-2 lx. The measurement times are extended by multiple measurements and the changes from Measurement Time (MTreg) to max. approx. 500 ms.
+Method for changing 'Measurement Time' registers. This can affect sensitivity.
+
+auto power down: The sensor is placed in the power saving mode after the measurement. The subsequent wake-up is possibly carried out automatically, but takes a little more time.
+
+Default values: Mode = RESOLUTION_AUTO_HIGH, AutoPowerDown = true
