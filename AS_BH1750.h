@@ -34,11 +34,11 @@
 #endif
 #include "Wire.h"
 
-// Mögliche I2C Adressen
+// Possible I2C addresses
 #define BH1750_DEFAULT_I2CADDR 0x23
 #define BH1750_SECOND_I2CADDR 0x5C
 
-// MTreg Werte
+// MTreg values
 // Default
 #define BH1750_MTREG_DEFAULT 69
 // Sensitivity : default = 0.45
@@ -46,7 +46,7 @@
 // Sensitivity : default = 3.68
 #define BH1750_MTREG_MAX 254
 
-// Hardware Modi
+// Hardware Modes
 // No active state
 #define BH1750_POWER_DOWN 0x00
 
@@ -77,7 +77,7 @@
 // Device is automatically set to Power Down after measurement.
 #define BH1750_ONE_TIME_LOW_RES_MODE  0x23
 
-/** Virtual Modi */
+/** Virtual Modes */
 typedef enum
 {
   RESOLUTION_LOW         = (1), /** 4lx resolution. Measurement time is approx 16ms. */  
@@ -97,62 +97,63 @@ class AS_BH1750 {
 public:
   /**
    * Constructor.
-   * Erlaubt die I2C-Adresse des Sensors zu ändern. 
-   * Standardadresse: 0x23, Alternativadresse: 0x5C. 
-   * Es sind entsprechende Konstanten definiert: BH1750_DEFAULT_I2CADDR  und BH1750_SECOND_I2CADDR.
-   * Bei Nichtangabe wird die Standardadresse verwendet. 
-   * Um die Alternativadresse zu nutzen, muss der Sensorpin 'ADR' des Chips auf VCC gelegt werden.
+   * Allows to change the I2C address of the sensor.
+   * Default address: 0x23, alternative address: 0x5C.
+   * Constants are defined as: BH1750_DEFAULT_I2CADDR and BH1750_SECOND_I2CADDR.
+   * When not specified, the default address is used.
+   * To use the alternative address, the sensor pin 'ADR' of the chip must be set to VCC.
    */
   AS_BH1750(uint8_t address = BH1750_DEFAULT_I2CADDR);
 
   /**
-   * Führt die anfängliche Initialisierung des Sensors.
-   * Mögliche Parameter: 
-   *  - Modus für die Sensorauflösung:
-   *    -- RESOLUTION_LOW:         Physische Sensormodus mit 4 lx Auflösung. Messzeit ca. 16ms. Bereich 0-54612.
-   *    -- RESOLUTION_NORMAL:      Physische Sensormodus mit 1 lx Auflösung. Messzeit ca. 120ms. Bereich 0-54612.
-   *    -- RESOLUTION_HIGH:        Physische Sensormodus mit 0,5 lx Auflösung. Messzeit ca. 120ms. Bereich 0-54612.
-   *                               (Die Messbereiche können durch Änderung des MTreg verschoben werden.)
-   *    -- RESOLUTION_AUTO_HIGH:   Die Werte im MTreg werden je nach Helligkeit automatisch so angepasst, 
-   *                               dass eine maximalmögliche Auflösung und Messbereich erziehlt werden.
-   *                               Die messbaren Werte fangen von 0,11 lx und gehen bis über 100000 lx.
-   *                               (ich weis nicht, wie genau die Werte in Grenzbereichen sind, 
-   *                               besonders bei hohen Werte habe ich meine Zweifel.)
-   *                               Auflösung im Unteren Bereich 0,13 lx, im mittleren 0,5 lx, im oberen 1-2 lx.
-   *                               Die Messzeiten verlängern sich durch mehrfache Messungen und 
-   *                               die Änderungen von Measurement Time (MTreg) bis max. ca. 500 ms.
-   *   
-   * - AutoPowerDown: true = Der Sensor wird nach der Messung in den Stromsparmodus versetzt. 
-   *   Das spätere Aufwecken wird ggf. automatisch vorgenommen, braucht jedoch geringfügig mehr Zeit.
+   * Performs the first initialization of the sensor.
+   * Possible parameters:
+   * - Sensor resolution mode:
+   * - RESOLUTION_LOW: Physical sensor mode with 4 lx resolution. Measurement time approx. 16ms. Range 0-54612.
+   * - RESOLUTION_NORMAL: Physical sensor mode with 1 lx resolution. Measurement time approx. 120ms. Range 0-54612.
+   * - RESOLUTION_HIGH: Physical sensor mode with 0.5 lx resolution. Measurement time approx. 120ms. Range 0-54612.
+   * (The measuring ranges can be moved by changing the MTreg.)
+   * - RESOLUTION_AUTO_HIGH: The values in the MTreg are automatically adjusted according to the brightness,
+   * that a maximum resolution and measuring range are achieved.
+   * The measurable values range from 0.11 lx to 100,000 lx.
+   * (I do not know how accurate the values are in border areas,
+   * especially with high values I have my doubts.
+   * However, the values seem to grow largely linearly with the increasing brightness.)
+   * Resolution in the lower range approximately 0.13 lx, in the middle 0.5 lx, in the upper approximately 1-2 lx.
+   * The measurement times are extended by multiple measurements and measurements
+   * the changes from Measurement Time (MTreg) to max. approx. 500 ms.
    *
-   * Defaultwerte: RESOLUTION_AUTO_HIGH, true, delay()
+   * - AutoPowerDown: true = The sensor is placed in the power saving mode after the measurement.
+   * The subsequent wake-up is performed automatically, but takes slightly more time.
+   *
+   * Default values: RESOLUTION_AUTO_HIGH, true, delay()
    *
    */
   bool begin(sensors_resolution_t mode = RESOLUTION_AUTO_HIGH, bool autoPowerDown = true);
 
   /**
-   * Erlaub eine Prüfung, ob ein (ansprechbarer) BH1750-Sensor vorhanden ist.
+   * Allow a check to see if a (responsive) BH1750 sensor is present.
    */
   bool isPresent(void);
 
   /**
-   * Liefert aktuell gemessenen Wert für Helligkeit in lux (lx).
-   * Falls sich der Sensorf in Stromsparmodus befindet, wird er automatisch geweckt.
-   *
-   * Wurde der Sensor (noch) nicht initialisiert (begin), wird der Wert -1 geliefert.
-   *
-   * Mögliche Parameter: 
-   *
-   * - DelayFuncPtr: delay(n) Möglichkeit, eigene Delay-Funktion mitzugeben (z.B. um sleep-Modus zu verwenden).
-   * 
-   * Defaultwerte: delay()
+   * Returns current measured value for brightness in lux (lx).
+   * If the sensor is in low-power mode, it is automatically awakened.
+   *
+   * If the sensor has not (yet) been initialized (begin), the value -1 is supplied.
+   *
+   * Possible parameters:
+   *
+   * - DelayFuncPtr: delay (n) Ability to add your own delay function (e.g., to use sleep mode).
+   *
+   * Default values: delay ()
    *
    */
   float readLightLevel(DelayFuncPtr fDelayPtr = &delay);
 
   /**
-   * Schickt den Sensor in Stromsparmodus.
-   * Funktionier nur, wenn der Sensor bereits initialisiert wurde.
+   * Sends the sensor to power saving mode.
+   * Only works if the sensor has already been initialized.
    */
   void powerDown(void);
 
